@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 from modules import scripts, script_callbacks
 try:
     from modules.paths_internal import data_path, models_path, extensions_dir
-except ImportError:c
+except ImportError:
     from modules.paths import data_path, models_path
     extensions_dir = os.path.join(data_path, 'extensions')
 
