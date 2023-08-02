@@ -46,8 +46,7 @@ embedding_path = args.embeddings_dir
 hypernetwork_path = args.hypernetwork_dir
 lora_path = args.lora_dir
 lycoris_path = args.lyco_dir
-controlnet_path = os.path.join(extensions_dir, 'sd-webui-controlnet')
-controlnet_model_path = os.path.join(controlnet_path, 'models')
+controlnet_path = os.path.join(models_path, 'ControlNet')
 
 print(f'Model Downloader v1.0.6 fixed')
 print('Checking Directories...')
@@ -69,6 +68,9 @@ if not os.path.exists(lora_path):
 if not os.path.exists(lycoris_path):
    os.makedirs(lycoris_path)
    print ('Creating LyCORIS Folder')
+if not os.path.exists(controlnet_path):
+   os.makedirs(controlnet_path)
+   print ('Creating ControlNet Folder')
 else:
      pass
 print('all Directories already Created.')
@@ -87,7 +89,7 @@ def folder(content_type):
     elif content_type == 'LyCORIS(LoCon/LoHA)':
          downloadpath = lycoris_path
     elif content_type == 'ControlNet Model':
-         downloadpath = controlnet_model_path
+         downloadpath = controlnet_path
     else:
          downloadpath = 'Unset, Please Choose your Content Type'
     return downloadpath
