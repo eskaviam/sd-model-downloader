@@ -3,6 +3,9 @@ import launch
 import platform
 import subprocess
 
+if not launch.is_installed("gdown"):
+    launch.run_pip("install gdown", "requirements for SD Model Downloader")
+
 def checking():
     try:
         subprocess.run("aria2c", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

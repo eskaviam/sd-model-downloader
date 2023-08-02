@@ -2,15 +2,16 @@ import os
 import requests
 import argparse
 import subprocess
+import gdown
 import gradio as gr
 from install import checking
 from urllib.parse import urlparse
 from modules import scripts, script_callbacks
 try:
     from modules.paths_internal import data_path, models_path, extensions_dir
-except ImportError:
-       from modules.paths import data_path, models_path
-       extensions_dir = os.path.join(data_path, 'extensions')
+except ImportError:c
+     from modules.paths import data_path, models_path
+     extensions_dir = os.path.join(data_path, 'extensions')
 
 sd_path = os.getcwd()
 ext = '/extensions'
@@ -151,44 +152,52 @@ def start_downloading(download_btn, url, downloadpath, filename, addnet, logging
     complete3 = 'ERROR: Something went wrong, please try again later'
     path, extension = get_filename_from_url(url)
     imgname = f'{filename}.preview.png'
-    if url.find('https://civitai.com/')!=-1:
-       target1 = f'{downloadpath}/{filename}'
-       target2 = f'{addnet_path}/models/lora/{filename}'
+    if url.find('https://civitai.com/') != -1:
+        target1 = f'{downloadpath}/{filename}'
+        target2 = f'{addnet_path}/models/lora/{filename}'
     else:
-         target1 = f'{downloadpath}'
-         target2 = f'{addnet_path}/models/lora'
-    final_target = None
-    if addnet:
-       final_target = target2
-    else:
-         final_target = target1
+        target1 = f'{downloadpath}'
+        target2 = f'{addnet_path}/models/lora'
+    final_target = target2 if addnet else target1
+
     with open('model.txt', 'w') as w:
-         if not url.find('https://civitai.com/')!=-1:
+        if not url.find('https://civitai.com/') != -1:
             w.write(f'{url}\n out={filename}{extension}')
-         else:
-              imgurl = get_image_from_url(url)
-              w.write(f'{url}\n out={filename}{extension}\n{imgurl}\n out={imgname}')
-    command = f'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M --input-file model.txt -d {final_target}'
-    back(download_btn)
-    if not os.path.exists(os.path.join(final_target, filename)):
-       try:
-           if logging:
-              command.replace(f' --console-log-level=error', '')
-              line = subprocess.getoutput(command)
-              yield line
-              print(line)
-           else:
-                line = os.popen(command)
-                for l in line:
-                    l = l.rstrip()
-                    yield f'{complete1}{final_target}'
-                print(f'{complete1}{final_target}')
-       except Exception:
-               yield f'{Exception}\n{complete3}'
-               print(f'{Exception}\n{complete3}')
+        else:
+            imgurl = get_image_from_url(url)
+            w.write(f'{url}\n out={filename}{extension}\n{imgurl}\n out={imgname}')
+
+    if "drive.google.com" in url:
+        output_path = os.path.join(final_target, filename)
+        try:
+            gdown.download(url=url, output=output_path, quiet=False, fuzzy=True)
+            yield f'{complete1}{final_target}'
+            print(f'{complete1}{final_target}')
+        except Exception as e:
+            yield f'ERROR: {e}\n{complete3}'
+            print(f'ERROR: {e}\n{complete3}')
     else:
-         yield f'{complete2}{final_target}'
-         print(f'{complete2}{final_target}')
+        command = f'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M --input-file model.txt -d {final_target}'
+        back(download_btn)
+        if not os.path.exists(os.path.join(final_target, filename)):
+            try:
+                if logging:
+                    command.replace(f' --console-log-level=error', '')
+                    line = subprocess.getoutput(command)
+                    yield line
+                    print(line)
+                else:
+                    line = os.popen(command)
+                    for l in line:
+                        l = l.rstrip()
+                        yield f'{complete1}{final_target}'
+                    print(f'{complete1}{final_target}')
+            except Exception as e:
+                yield f'{e}\n{complete3}'
+                print(f'{e}\n{complete3}')
+        else:
+            yield f'{complete2}{final_target}'
+            print(f'{complete2}{final_target}')
 
 def back(download_btn):
     return gr.Button.update(visible=True, variant='secondary')
