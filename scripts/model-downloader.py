@@ -10,8 +10,8 @@ from modules import scripts, script_callbacks
 try:
     from modules.paths_internal import data_path, models_path, extensions_dir
 except ImportError:c
-     from modules.paths import data_path, models_path
-     extensions_dir = os.path.join(data_path, 'extensions')
+    from modules.paths import data_path, models_path
+    extensions_dir = os.path.join(data_path, 'extensions')
 
 sd_path = os.getcwd()
 ext = '/extensions'
